@@ -38,7 +38,7 @@ func Handler(config Config) error {
 				log.Info(fmt.Sprintf("%s", err))
 				break
 			}
-			rentity.Pipe <- msg
+			rentity.Pipe <- msg // TODO: this will cause dead lock
 			log.Info("Message delivered from %s to %s", sid, rid)
 		}
 	}

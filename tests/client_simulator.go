@@ -3,19 +3,27 @@ package main
 import (
 	"bufio"
 	"crypto/tls"
+	"flag"
 	"fmt"
 	"github.com/denghongcai/generalmessagegate/protocol"
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 var controller = make(chan bool)
 
 func main() {
-	go client("a", "a")
-	go client("b", "a")
-	go client("c", "a")
+	sid := flag.String("s", "a", "sid")
+	rid := flag.String("r", "a", "sid")
+	go client(*sid, *rid)
+	go func() {
+		for {
+			time.Sleep(10 * time.Second)
+			controller <- true
+		}
+	}()
 	for {
 		line, _ := bufio.NewReader(os.Stdin).ReadBytes('\n')
 		op := fmt.Sprintf("%s", line)
@@ -51,12 +59,10 @@ func client(sid string, rid string) {
 	readchan := make(chan *[]byte)
 
 	go func() {
-		if sid == rid {
-			for {
-				reply := make([]byte, 256)
-				n, err = conn.Read(reply)
-				readchan <- &reply
-			}
+		for {
+			reply := make([]byte, 256)
+			n, err = conn.Read(reply)
+			readchan <- &reply
 		}
 	}()
 

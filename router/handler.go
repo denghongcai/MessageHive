@@ -2,6 +2,8 @@ package router
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/denghongcai/generalmessagegate/message"
 	"github.com/denghongcai/generalmessagegate/onlinetable"
 	"github.com/op/go-logging"
@@ -38,8 +40,14 @@ func Handler(config Config) error {
 				log.Info(fmt.Sprintf("%s", err))
 				break
 			}
-			rentity.Pipe <- msg // TODO: this will cause dead lock
-			log.Info("Message delivered from %s to %s", sid, rid)
+			go func() {
+				select {
+				case rentity.Pipe <- msg: // TODO: this will cause dead lock
+					log.Info("Message delivered from %s to %s", sid, rid)
+				case <-time.After(time.Second):
+					config.mainchan <- msg
+				}
+			}()
 		}
 	}
 	return nil

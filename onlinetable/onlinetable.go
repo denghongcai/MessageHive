@@ -2,16 +2,23 @@ package onlinetable
 
 import (
 	"errors"
-	"github.com/denghongcai/generalmessagegate/message"
-	"github.com/op/go-logging"
 	"sync"
 	"time"
+
+	"github.com/denghongcai/generalmessagegate/message"
+	"github.com/op/go-logging"
 )
 
 var log = logging.MustGetLogger("main")
 
+const (
+	ENTITY_TYPE_USER = iota
+	ENTITY_TYPE_GROUP
+)
+
 type Entity struct {
 	Uid       string
+	Type      int
 	Pipe      chan *message.Container
 	LoginTime time.Time
 }
@@ -50,6 +57,12 @@ func (ct *Container) AddEntity(uid string, pipe chan *message.Container) error {
 	ct.storage[uid] = entity
 	ct.Unlock()
 	log.Debug("Entity uid: %s added", uid)
+	return nil
+}
+
+func (ct *Container) GetEntities() error {
+	ct.Lock()
+	ct.Unlock()
 	return nil
 }
 

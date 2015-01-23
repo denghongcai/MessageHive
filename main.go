@@ -3,13 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/denghongcai/generalmessagegate/message"
+	"github.com/denghongcai/generalmessagegate/monitor"
 	"github.com/denghongcai/generalmessagegate/onlinetable"
 	"github.com/denghongcai/generalmessagegate/router"
 	"github.com/denghongcai/generalmessagegate/server"
 	"github.com/op/go-logging"
-	"os"
-	"strings"
 )
 
 var (
@@ -60,8 +62,8 @@ func main() {
 	onlineTable := onlinetable.NewContainer()
 	mainChan := make(chan *message.Container, 1024)
 
-	address := []string{"0.0.0.0", fmt.Sprintf("%d", *port)}
-	serverConfig := server.NewConfig(strings.Join(address, ":"), mainChan, onlineTable)
+	serverAddress := []string{"0.0.0.0", fmt.Sprintf("%d", *port)}
+	serverConfig := server.NewConfig(strings.Join(serverAddress, ":"), mainChan, onlineTable)
 	go func() {
 		if err := server.Handler(serverConfig); err != nil {
 			log.Error(err.Error())
@@ -69,7 +71,15 @@ func main() {
 	}()
 
 	routerConfig := router.NewConfig(mainChan, onlineTable)
-	if err := router.Handler(routerConfig); err != nil {
+	go func() {
+		if err := router.Handler(routerConfig); err != nil {
+			log.Error(err.Error())
+		}
+	}()
+
+	monitorAddress := []string{"0.0.0.0", "8888"}
+	monitorConfig := monitor.NewConfig(strings.Join(monitorAddress, ":"), onlineTable)
+	if err := monitor.Start(monitorConfig); err != nil {
 		log.Error(err.Error())
 	}
 }

@@ -2,13 +2,14 @@ package client
 
 import (
 	"errors"
+	"net"
+	"time"
+
 	"github.com/denghongcai/generalmessagegate/auth"
 	"github.com/denghongcai/generalmessagegate/message"
 	"github.com/denghongcai/generalmessagegate/onlinetable"
 	"github.com/denghongcai/generalmessagegate/protocol"
 	"github.com/op/go-logging"
-	"net"
-	"time"
 )
 
 var log = logging.MustGetLogger("main")

@@ -5,18 +5,22 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"github.com/denghongcai/generalmessagegate/protocol"
 	"log"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/denghongcai/generalmessagegate/protocol"
 )
 
 var controller = make(chan bool)
 
 func main() {
 	sid := flag.String("s", "a", "sid")
-	rid := flag.String("r", "a", "sid")
+	rid := flag.String("r", "a", "rid")
+	flag.Parse()
+	fmt.Printf("sid: %s\n", *sid)
+	fmt.Printf("rid: %s\n", *rid)
 	go client(*sid, *rid)
 	go func() {
 		for {
@@ -41,7 +45,7 @@ func client(sid string, rid string) {
 	config := tls.Config{
 		InsecureSkipVerify: false,
 	}
-	conn, err := tls.Dial("tcp", "server06.dhc.house:1430", &config)
+	conn, err := tls.Dial("tcp", "server09.dhc.house:1430", &config)
 	if err != nil {
 		log.Fatalf("client: dial: %s", err)
 	}

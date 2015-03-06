@@ -45,7 +45,7 @@ func client(sid string, rid string) {
 	config := tls.Config{
 		InsecureSkipVerify: false,
 	}
-	conn, err := tls.Dial("tcp", "server09.dhc.house:1430", &config)
+	conn, err := tls.Dial("tcp", "server01.dhc.house:1430", &config)
 	if err != nil {
 		log.Fatalf("client: dial: %s", err)
 	}

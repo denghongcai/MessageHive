@@ -1,13 +1,18 @@
 package onlinetable
 
 import (
-	"github.com/denghongcai/generalmessagegate/message"
+	"fmt"
 	"testing"
+
+	"github.com/denghongcai/generalmessagegate/message"
 )
 
 func TestNewAddGetDel(t *testing.T) {
 	container := NewContainer()
 	container.AddEntity("foo", make(chan *message.Container))
+	uidlist := make([]string, 0)
+	uidlist = append(uidlist, "foo")
+	container.AddGroupEntity("bar", uidlist)
 	entity, err := container.GetEntity("foo")
 	if entity.Uid != "foo" {
 		t.Fail()
@@ -17,4 +22,9 @@ func TestNewAddGetDel(t *testing.T) {
 	if err == nil {
 		t.Fail()
 	}
+	entity, err = container.GetEntity("bar")
+	if entity.Uid != "bar" {
+		t.Fail()
+	}
+	fmt.Printf("Uid list: %v\n", entity.List)
 }

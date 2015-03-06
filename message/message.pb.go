@@ -21,17 +21,25 @@ var _ = proto.Marshal
 var _ = math.Inf
 
 type Container struct {
-	SID              *string `protobuf:"bytes,1,req" json:"SID,omitempty"`
-	RID              *string `protobuf:"bytes,2,req" json:"RID,omitempty"`
-	TYPE             *uint32 `protobuf:"varint,3,req" json:"TYPE,omitempty"`
-	STIME            *int64  `protobuf:"varint,4,req" json:"STIME,omitempty"`
-	BODY             *string `protobuf:"bytes,5,req" json:"BODY,omitempty"`
+	MID              *string `protobuf:"bytes,1,opt" json:"MID,omitempty"`
+	SID              *string `protobuf:"bytes,2,req" json:"SID,omitempty"`
+	RID              *string `protobuf:"bytes,3,req" json:"RID,omitempty"`
+	TYPE             *uint32 `protobuf:"varint,4,req" json:"TYPE,omitempty"`
+	STIME            *int64  `protobuf:"varint,5,req" json:"STIME,omitempty"`
+	BODY             *string `protobuf:"bytes,6,req" json:"BODY,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
 func (m *Container) Reset()         { *m = Container{} }
 func (m *Container) String() string { return proto.CompactTextString(m) }
 func (*Container) ProtoMessage()    {}
+
+func (m *Container) GetMID() string {
+	if m != nil && m.MID != nil {
+		return *m.MID
+	}
+	return ""
+}
 
 func (m *Container) GetSID() string {
 	if m != nil && m.SID != nil {

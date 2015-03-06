@@ -4,7 +4,8 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/denghongcai/generalmessagegate/message"
+
+	"github.com/denghongcai/messagehive/message"
 	"github.com/golang/protobuf/proto"
 	"github.com/op/go-logging"
 )

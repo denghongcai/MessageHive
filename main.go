@@ -6,11 +6,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/denghongcai/generalmessagegate/message"
-	"github.com/denghongcai/generalmessagegate/monitor"
-	"github.com/denghongcai/generalmessagegate/onlinetable"
-	"github.com/denghongcai/generalmessagegate/router"
-	"github.com/denghongcai/generalmessagegate/server"
+	"github.com/denghongcai/messagehive/message"
+	"github.com/denghongcai/messagehive/monitor"
+	"github.com/denghongcai/messagehive/onlinetable"
+	"github.com/denghongcai/messagehive/router"
+	"github.com/denghongcai/messagehive/rpc"
+	"github.com/denghongcai/messagehive/server"
 	"github.com/op/go-logging"
 )
 
@@ -79,7 +80,15 @@ func main() {
 
 	monitorAddress := []string{"0.0.0.0", "8888"}
 	monitorConfig := monitor.NewConfig(strings.Join(monitorAddress, ":"), onlineTable)
-	if err := monitor.Start(monitorConfig); err != nil {
+	go func() {
+		if err := monitor.Start(monitorConfig); err != nil {
+			log.Error(err.Error())
+		}
+	}()
+
+	rpcAddress := []string{"0.0.0.0", "9999"}
+	rpcConfig := rpc.NewConfig(strings.Join(rpcAddress, ":"), onlineTable)
+	if err := rpc.Start(rpcConfig); err != nil {
 		log.Error(err.Error())
 	}
 }

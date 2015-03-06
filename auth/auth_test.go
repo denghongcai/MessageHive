@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"github.com/denghongcai/generalmessagegate/message"
-	"github.com/golang/protobuf/proto"
 	"testing"
+
+	"github.com/denghongcai/messagehive/message"
+	"github.com/golang/protobuf/proto"
 )
 
 func TestAuth(t *testing.T) {

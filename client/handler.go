@@ -2,13 +2,14 @@ package client
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"time"
 
-	"github.com/denghongcai/generalmessagegate/auth"
-	"github.com/denghongcai/generalmessagegate/message"
-	"github.com/denghongcai/generalmessagegate/onlinetable"
-	"github.com/denghongcai/generalmessagegate/protocol"
+	"github.com/denghongcai/messagehive/auth"
+	"github.com/denghongcai/messagehive/message"
+	"github.com/denghongcai/messagehive/onlinetable"
+	"github.com/denghongcai/messagehive/protocol"
 	"github.com/op/go-logging"
 )
 
@@ -53,13 +54,13 @@ func (ins *Instance) stateMachine(pkt *protocol.Packet) error {
 			return err
 		}
 		if err := ins.onlinetable.AddEntity(pkt.Msg.GetSID(), ins.inchan); err != nil {
-			return errors.New("Entity add failed")
+			return errors.New(fmt.Sprintf("Entity add failed, uid: %s", ins.Uid))
 		}
 		ins.Uid = pkt.Msg.GetSID()
 		ins.state = CONNECTED
 	case CONNECTED:
 		if ins.Uid != pkt.Msg.GetSID() {
-			return errors.New("Uid and SID mismatched")
+			return errors.New(fmt.Sprintf("Uid and SID mismatched, uid: %s, sid: %s", ins.Uid, pkt.Msg.GetSID()))
 		}
 		ins.outchan <- pkt.Msg
 	}
@@ -74,7 +75,7 @@ func (ins *Instance) MainReadHandler() {
 		tmp := make([]byte, 32)
 		n, err := ins.conn.Read(tmp)
 		if err != nil {
-			log.Debug("Read: %s", err)
+			log.Debug("Read: %s, uid: %s", err, ins.Uid)
 			break
 		}
 		buffer = append(buffer, tmp[:n]...)
@@ -82,15 +83,15 @@ func (ins *Instance) MainReadHandler() {
 		var s bool
 		if s, err = pkt.UnPack(&buffer); s {
 			if err = ins.stateMachine(pkt); err != nil {
-				log.Debug("StateMachine: %s", err)
+				log.Debug("StateMachine: %s, uid: %s", err, ins.Uid)
 				break
 			}
 		} else if err != nil {
-			log.Debug("Unpack: %s, received bytes: %d", err, n)
+			log.Debug("Unpack: %s, received bytes: %d, uid: %s", err, n, ins.Uid)
 			break
 		}
 	}
-	log.Info("Disconnected")
+	log.Info("Disconnected, uid: %s", ins.Uid)
 	ins.onlinetable.DelEntity(ins.Uid)
 }
 
@@ -112,6 +113,6 @@ func (ins *Instance) MainWriteHandler() {
 			break
 		}
 	}
-	log.Info("Disconnected")
+	log.Info("Disconnected, uid: %s", ins.Uid)
 	ins.onlinetable.DelEntity(ins.Uid)
 }

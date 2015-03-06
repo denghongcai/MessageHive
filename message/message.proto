@@ -1,9 +1,10 @@
 package message;
 
 message Container {
-	required string SID = 1;
-	required string RID = 2;
-	required uint32 TYPE = 3;
-	required int64 STIME = 4;
-	required string BODY = 5;
+	optional string MID = 1;
+	required string SID = 2;
+	required string RID = 3;
+	required uint32 TYPE = 4;
+	required int64 STIME = 5;
+	required string BODY = 6;
 }

@@ -3,7 +3,8 @@ package auth
 import (
 	"encoding/json"
 	"errors"
-	"github.com/denghongcai/generalmessagegate/message"
+
+	"github.com/denghongcai/messagehive/message"
 	"github.com/op/go-logging"
 )
 

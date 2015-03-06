@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/denghongcai/generalmessagegate/message"
+	"github.com/denghongcai/messagehive/message"
 	"github.com/op/go-logging"
 )
 
@@ -20,6 +20,7 @@ type Entity struct {
 	Uid       string
 	Type      int
 	Pipe      chan *message.Container
+	List      []string
 	LoginTime time.Time
 }
 
@@ -53,10 +54,20 @@ func (ct Container) GetEntity(uid string) (*Entity, error) {
 func (ct *Container) AddEntity(uid string, pipe chan *message.Container) error {
 	ct.Lock()
 	delete(ct.storage, uid)
-	entity := &Entity{Uid: uid, Pipe: pipe, LoginTime: time.Now().UTC()}
+	entity := &Entity{Uid: uid, Type: ENTITY_TYPE_USER, Pipe: pipe, LoginTime: time.Now().UTC()}
 	ct.storage[uid] = entity
 	ct.Unlock()
 	log.Debug("Entity uid: %s added", uid)
+	return nil
+}
+
+func (ct *Container) AddGroupEntity(uid string, uidlist []string) error {
+	//TODO: Ensure every user in group is existed
+	ct.Lock()
+	entity := &Entity{Uid: uid, Type: ENTITY_TYPE_GROUP, List: uidlist, LoginTime: time.Now().UTC()}
+	ct.storage[uid] = entity
+	ct.Unlock()
+	log.Debug("Group entity uid: %s added", uid)
 	return nil
 }
 

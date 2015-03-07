@@ -58,6 +58,7 @@ func (ins *Instance) stateMachine(pkt *protocol.Packet) error {
 		}
 		ins.Uid = pkt.Msg.GetSID()
 		ins.state = CONNECTED
+		ins.outchan <- pkt.Msg
 	case CONNECTED:
 		if ins.Uid != pkt.Msg.GetSID() {
 			return errors.New(fmt.Sprintf("Uid and SID mismatched, uid: %s, sid: %s", ins.Uid, pkt.Msg.GetSID()))

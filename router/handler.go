@@ -90,6 +90,9 @@ func Handler(config Config) error {
 			for i := 0; i < int(MESSAGE_TYPE_MAX); i++ {
 				if hasBit(mtype, uint(i)) {
 					switch uint(i) {
+					case MESSAGE_TYPE_AUTHENTICATE:
+						sendflag = false
+						break
 					case MESSAGE_TYPE_TRANSIENT:
 						// TODO
 						break

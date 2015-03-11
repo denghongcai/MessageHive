@@ -18,10 +18,11 @@ var controller = make(chan bool)
 func main() {
 	sid := flag.String("s", "a", "sid")
 	rid := flag.String("r", "a", "rid")
+	group := flag.Bool("g", false, "group")
 	flag.Parse()
 	fmt.Printf("sid: %s\n", *sid)
 	fmt.Printf("rid: %s\n", *rid)
-	go client(*sid, *rid)
+	go client(*sid, *rid, *group)
 	go func() {
 		for {
 			time.Sleep(10 * time.Second)
@@ -41,7 +42,7 @@ func main() {
 	}
 }
 
-func client(sid string, rid string) {
+func client(sid string, rid string, group bool) {
 	config := tls.Config{
 		InsecureSkipVerify: false,
 	}
@@ -52,7 +53,7 @@ func client(sid string, rid string) {
 	defer conn.Close()
 	log.Println("client: connected to: ", conn.RemoteAddr())
 
-	msg := CreatePacket(SYS, sid, rid, `{"token": "a"}`)
+	msg := CreatePacket(AUTH, sid, rid, `{"token": "a"}`)
 
 	n, err := conn.Write(msg)
 	if err != nil {
@@ -60,6 +61,16 @@ func client(sid string, rid string) {
 	}
 	log.Printf("client: wrote %q (%d bytes)", msg, n)
 
+	if group {
+		msg = CreatePacket(JOINGROUP, sid, "d", `{"action": "join", "data": ["a", "b", "c"]}`)
+
+		n, err = conn.Write(msg)
+		if err != nil {
+			log.Fatalf("client: write: %s", err)
+		}
+		log.Printf("client: wrote %q (%d bytes)", msg, n)
+
+	}
 	readchan := make(chan *[]byte)
 
 	go func() {

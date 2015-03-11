@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	event_user "github.com/denghongcai/messagehive/event/user"
 	"github.com/denghongcai/messagehive/message"
 	"github.com/denghongcai/messagehive/onlinetable"
 	"github.com/golang/protobuf/proto"
@@ -32,7 +33,7 @@ const (
 
 type GroupBody struct {
 	Action  string      `json:"action"`
-	BodyRaw interface{} `json:"body"`
+	BodyRaw interface{} `json:"data"`
 
 	List []string
 	Data string
@@ -46,8 +47,17 @@ func GroupBodyDecode(r io.Reader) (x *GroupBody, err error) {
 	switch t := x.BodyRaw.(type) {
 	case string:
 		x.Data = t
-	case []string:
-		x.List = t
+	case []interface{}:
+		bodyraw := x.BodyRaw.([]interface{})
+		list := make([]string, 0)
+		for i := range bodyraw {
+			data, err := bodyraw[i].(string)
+			if err == false {
+				break
+			}
+			list = append(list, data)
+		}
+		x.List = list
 	}
 	return
 }
@@ -68,6 +78,13 @@ func NewConfig(mainchan chan *message.Container, onlinetable *onlinetable.Contai
 }
 
 func Handler(config Config) error {
+	// Event handler init
+	eventUserChan := make(chan *event_user.Event, 1000)
+	eventUserConfig := event_user.NewConfig(eventUserChan, config.mainchan)
+	go func(config event_user.Config) {
+		event_user.Start(eventUserConfig)
+	}(eventUserConfig)
+
 	for {
 		select {
 		case msg := <-config.mainchan:
@@ -91,6 +108,11 @@ func Handler(config Config) error {
 				if hasBit(mtype, uint(i)) {
 					switch uint(i) {
 					case MESSAGE_TYPE_AUTHENTICATE:
+						e := &event_user.Event{
+							Uid:  sid,
+							Type: event_user.USER_ONLINE,
+						}
+						eventUserChan <- e
 						sendflag = false
 						break
 					case MESSAGE_TYPE_TRANSIENT:
@@ -148,11 +170,11 @@ func Handler(config Config) error {
 				switch rentity.Type {
 				case onlinetable.ENTITY_TYPE_GROUP:
 					for _, v := range rentity.List {
-						if v != sid {
-							newmsg := *msg
-							newmsg.RID = proto.String(v)
-							config.mainchan <- &newmsg
-						}
+						//if v != sid {
+						newmsg := *msg
+						newmsg.RID = proto.String(v)
+						config.mainchan <- &newmsg
+						//}
 					}
 				case onlinetable.ENTITY_TYPE_USER:
 					go func() {
@@ -169,6 +191,8 @@ func Handler(config Config) error {
 	}
 	return nil
 }
+
+// Assume BigEndian
 
 func hasBit(n uint32, pos uint) bool {
 	val := n & (1 << pos)

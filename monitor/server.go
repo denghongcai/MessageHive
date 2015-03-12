@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/denghongcai/messagehive/onlinetable"
+	"github.com/denghongcai/MessageHive/onlinetable"
 	"github.com/op/go-logging"
 )
 

@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/rpc"
 	"github.com/gorilla/rpc/json"
 
-	"github.com/denghongcai/messagehive/onlinetable"
+	"github.com/denghongcai/MessageHive/onlinetable"
 	"github.com/op/go-logging"
 )
 

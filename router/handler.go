@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	event_user "github.com/denghongcai/messagehive/event/user"
-	"github.com/denghongcai/messagehive/message"
-	"github.com/denghongcai/messagehive/onlinetable"
+	event_user "github.com/denghongcai/MessageHive/event/user"
+	"github.com/denghongcai/MessageHive/message"
+	"github.com/denghongcai/MessageHive/onlinetable"
 	"github.com/golang/protobuf/proto"
 	"github.com/op/go-logging"
 )

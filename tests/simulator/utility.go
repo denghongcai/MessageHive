@@ -4,8 +4,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/denghongcai/messagehive/message"
-	"github.com/denghongcai/messagehive/protocol"
+	"github.com/denghongcai/MessageHive/message"
+	"github.com/denghongcai/MessageHive/protocol"
 	"github.com/golang/protobuf/proto"
 )
 

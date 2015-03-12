@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/denghongcai/messagehive/message"
+	"github.com/denghongcai/MessageHive/message"
 	"github.com/op/go-logging"
 )
 

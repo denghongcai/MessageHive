@@ -6,12 +6,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/denghongcai/messagehive/message"
-	"github.com/denghongcai/messagehive/monitor"
-	"github.com/denghongcai/messagehive/onlinetable"
-	"github.com/denghongcai/messagehive/router"
-	"github.com/denghongcai/messagehive/rpc"
-	"github.com/denghongcai/messagehive/server"
+	"github.com/denghongcai/MessageHive/message"
+	"github.com/denghongcai/MessageHive/monitor"
+	"github.com/denghongcai/MessageHive/onlinetable"
+	"github.com/denghongcai/MessageHive/router"
+	"github.com/denghongcai/MessageHive/rpc"
+	"github.com/denghongcai/MessageHive/server"
 	"github.com/op/go-logging"
 )
 

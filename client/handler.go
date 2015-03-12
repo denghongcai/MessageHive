@@ -6,10 +6,10 @@ import (
 	"net"
 	"time"
 
-	"github.com/denghongcai/messagehive/auth"
-	"github.com/denghongcai/messagehive/message"
-	"github.com/denghongcai/messagehive/onlinetable"
-	"github.com/denghongcai/messagehive/protocol"
+	"github.com/denghongcai/MessageHive/auth"
+	"github.com/denghongcai/MessageHive/message"
+	"github.com/denghongcai/MessageHive/onlinetable"
+	"github.com/denghongcai/MessageHive/protocol"
 	"github.com/op/go-logging"
 )
 

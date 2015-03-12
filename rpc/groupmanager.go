@@ -3,7 +3,7 @@ package rpc
 import (
 	"net/http"
 
-	"github.com/denghongcai/messagehive/onlinetable"
+	"github.com/denghongcai/MessageHive/onlinetable"
 )
 
 type AddArgs struct {

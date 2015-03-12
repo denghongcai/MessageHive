@@ -3,9 +3,9 @@ package server
 import (
 	"crypto/tls"
 
-	"github.com/denghongcai/messagehive/client"
-	"github.com/denghongcai/messagehive/message"
-	"github.com/denghongcai/messagehive/onlinetable"
+	"github.com/denghongcai/MessageHive/client"
+	"github.com/denghongcai/MessageHive/message"
+	"github.com/denghongcai/MessageHive/onlinetable"
 	"github.com/op/go-logging"
 )
 

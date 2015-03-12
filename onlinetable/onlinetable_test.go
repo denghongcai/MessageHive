@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/denghongcai/generalmessagegate/message"
+	"github.com/denghongcai/MessageHive/message"
 )
 
 func TestNewAddGetDel(t *testing.T) {

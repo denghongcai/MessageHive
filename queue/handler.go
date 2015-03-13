@@ -25,8 +25,11 @@ func NewConfig(server string, in chan *message.Container, out chan *message.Cont
 	}
 }
 
-func Start(config Config) {
+func Start(config Config) error {
 	conn, err := beanstalk.Dial("tcp", config.server)
+	if err != nil {
+		return err
+	}
 	go func(config Config) {
 		id, data, err := conn.Reserve(time.Minute)
 		if err != nil {
@@ -37,7 +40,7 @@ func Start(config Config) {
 			select {
 			case config.out <- msg:
 				conn.Delete(id)
-			case time.After(5 * time.Second):
+			case <-time.After(5 * time.Second):
 				log.Error("%d message fail to proceed", id)
 			}
 

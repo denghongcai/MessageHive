@@ -2,6 +2,9 @@ package user
 
 import (
 	"github.com/denghongcai/MessageHive/message"
+	"github.com/denghongcai/MessageHive/onlinetable"
+	"github.com/garyburd/redigo/redis"
+	"github.com/golang/protobuf/proto"
 
 	"github.com/op/go-logging"
 )
@@ -18,14 +21,18 @@ type Event struct {
 }
 
 type Config struct {
-	eventchan chan *Event
-	mainchan  chan *message.Container
+	eventchan   chan *Event
+	pool        *redis.Pool
+	mainchan    chan *message.Container
+	onlinetable *onlinetable.Container
 }
 
-func NewConfig(eventchan chan *Event, mainchan chan *message.Container) Config {
+func NewConfig(eventchan chan *Event, pool *redis.Pool, mainchan chan *message.Container, onlinetable *onlinetable.Container) Config {
 	return Config{
-		eventchan: eventchan,
-		mainchan:  mainchan,
+		eventchan:   eventchan,
+		pool:        pool,
+		mainchan:    mainchan,
+		onlinetable: onlinetable,
 	}
 }
 
@@ -34,6 +41,21 @@ func Start(config Config) {
 		e := <-config.eventchan
 		switch e.Type {
 		case USER_ONLINE:
+			// Transient handle
+			conn := config.pool.Get()
+			for {
+				data, err := redis.Bytes(conn.Do("RPOP", e.Uid))
+				if err != nil {
+					continue
+				}
+				msg := new(message.Container)
+				err = proto.Unmarshal(data, msg)
+				if err != nil {
+					log.Error(err.Error())
+				}
+				config.mainchan <- msg
+			}
+			conn.Close()
 			log.Debug("UID: %s online", e.Uid)
 		}
 	}

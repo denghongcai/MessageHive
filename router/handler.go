@@ -9,6 +9,8 @@ import (
 	event_user "github.com/denghongcai/MessageHive/event/user"
 	"github.com/denghongcai/MessageHive/message"
 	"github.com/denghongcai/MessageHive/onlinetable"
+	"github.com/denghongcai/MessageHive/redis"
+	"github.com/denghongcai/MessageHive/router/transient"
 	"github.com/golang/protobuf/proto"
 	"github.com/op/go-logging"
 )
@@ -78,12 +80,20 @@ func NewConfig(mainchan chan *message.Container, onlinetable *onlinetable.Contai
 }
 
 func Handler(config Config) error {
+	// Redis init
+	redisPool := redis.NewPool(":6379")
 	// Event handler init
 	eventUserChan := make(chan *event_user.Event, 1000)
-	eventUserConfig := event_user.NewConfig(eventUserChan, config.mainchan)
+	eventUserConfig := event_user.NewConfig(eventUserChan, redisPool, config.mainchan, config.onlinetable)
 	go func(config event_user.Config) {
 		event_user.Start(eventUserConfig)
 	}(eventUserConfig)
+	// Transient handler init
+	transientChan := make(chan *message.Container, 1000)
+	transientConfig := transient.NewConfig(redisPool, transientChan)
+	go func(config transient.Config) {
+		transient.Handler(config)
+	}(transientConfig)
 
 	for {
 		select {
@@ -114,9 +124,6 @@ func Handler(config Config) error {
 						}
 						eventUserChan <- e
 						sendflag = false
-						break
-					case MESSAGE_TYPE_TRANSIENT:
-						// TODO
 						break
 					case MESSAGE_TYPE_GROUP:
 						body := msg.GetBODY()
@@ -164,17 +171,21 @@ func Handler(config Config) error {
 			if sendflag {
 				rentity, err := config.onlinetable.GetEntity(rid)
 				if err != nil {
-					log.Info(err.Error())
+					log.Debug(err.Error())
+					if hasBit(mtype, MESSAGE_TYPE_TRANSIENT) {
+						// MESSAGE_TYPE_TRANSIENT
+						transientChan <- msg
+					}
 					break
 				}
 				switch rentity.Type {
 				case onlinetable.ENTITY_TYPE_GROUP:
 					for _, v := range rentity.List {
-						//if v != sid {
-						newmsg := *msg
-						newmsg.RID = proto.String(v)
-						config.mainchan <- &newmsg
-						//}
+						if v != sid {
+							newmsg := *msg
+							newmsg.RID = proto.String(v)
+							config.mainchan <- &newmsg
+						}
 					}
 				case onlinetable.ENTITY_TYPE_USER:
 					go func() {

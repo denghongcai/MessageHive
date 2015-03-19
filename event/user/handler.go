@@ -46,7 +46,7 @@ func Start(config Config) {
 			for {
 				data, err := redis.Bytes(conn.Do("RPOP", e.Uid))
 				if err != nil {
-					continue
+					break
 				}
 				msg := new(message.Container)
 				err = proto.Unmarshal(data, msg)

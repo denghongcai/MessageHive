@@ -5,6 +5,7 @@ import (
 	"github.com/denghongcai/MessageHive/onlinetable"
 	"github.com/garyburd/redigo/redis"
 	"github.com/golang/protobuf/proto"
+	"time"
 
 	"github.com/op/go-logging"
 )
@@ -56,6 +57,15 @@ func Start(config Config) {
 				config.mainchan <- msg
 			}
 			conn.Close()
+			if e.Uid != "00000001" {
+				msg := &message.Container{}
+				msg.SID = proto.String(e.Uid)
+				msg.RID = proto.String("00000001") // 推送系统UID
+				msg.TYPE = proto.Uint32(64)
+				msg.STIME = proto.Int64(time.Now().UnixNano())
+				msg.BODY = proto.String(`{"type": "online", "data": null}`)
+				config.mainchan <- msg
+			}
 			log.Debug("UID: %s online", e.Uid)
 		}
 	}

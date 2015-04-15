@@ -1,3 +1,4 @@
+// 主包，负责功能模块初始化
 package main
 
 import (
@@ -23,10 +24,12 @@ var (
 
 var log = logging.MustGetLogger("main")
 
+// 日志输出格式
 var format = logging.MustStringFormatter(
 	"%{color}%{time:15:04:05.000} %{shortfunc} ▶ %{level} %{id}%{color:reset} %{message}",
 )
 
+// 日志配置
 func setLoggerOption(log *logging.Logger, logLevel *string) {
 	logBackend := logging.NewLogBackend(os.Stderr, "", 0)
 
@@ -63,6 +66,7 @@ func main() {
 	onlineTable := onlinetable.NewContainer()
 	mainChan := make(chan *message.Container, 1024)
 
+	// 连接监听模块初始化
 	serverAddress := []string{"0.0.0.0", fmt.Sprintf("%d", *port)}
 	serverConfig := server.NewConfig(strings.Join(serverAddress, ":"), mainChan, onlineTable)
 	go func() {
@@ -71,6 +75,7 @@ func main() {
 		}
 	}()
 
+	// 路由模块初始化
 	routerConfig := router.NewConfig(mainChan, onlineTable)
 	go func() {
 		if err := router.Handler(routerConfig); err != nil {

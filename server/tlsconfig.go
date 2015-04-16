@@ -7,15 +7,19 @@ import (
 	"io/ioutil"
 )
 
+// TLS设置初始化
 func tlsConfig() (tls.Config, error) {
+	// 证书链叶子证书
 	leafcsr, lerr := ioutil.ReadFile("./certificates/dhc.house.der.csr")
 	if lerr != nil {
 		return tls.Config{}, lerr
 	}
+	// 证书链根证书
 	rootcsr, rerr := ioutil.ReadFile("./certificates/alphassl.der.csr")
 	if rerr != nil {
 		return tls.Config{}, rerr
 	}
+	// 私钥
 	privkey, perr := ioutil.ReadFile("./certificates/dhc.house.der.key")
 	if perr != nil {
 		return tls.Config{}, perr

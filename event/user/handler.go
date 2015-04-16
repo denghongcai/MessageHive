@@ -1,3 +1,4 @@
+// 用户事件模块
 package user
 
 import (
@@ -16,6 +17,7 @@ const (
 	USER_ONLINE = iota
 )
 
+// 与用户相关的事件结构体
 type Event struct {
 	Uid  string
 	Type int
@@ -45,6 +47,7 @@ func Start(config Config) {
 			// Transient handle
 			conn := config.pool.Get()
 			for {
+				// 从Redis中取出当前用户在Transient队列中的未过期消息
 				data, err := redis.Bytes(conn.Do("RPOP", e.Uid))
 				if err != nil {
 					break
@@ -57,6 +60,7 @@ func Start(config Config) {
 				config.mainchan <- msg
 			}
 			conn.Close()
+			// 向推送服务器推送用户上线事件
 			if e.Uid != "00000001" {
 				msg := &message.Container{}
 				msg.SID = proto.String(e.Uid)

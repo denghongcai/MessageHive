@@ -1,3 +1,4 @@
+// 服务端模块
 package server
 
 import (
@@ -26,6 +27,7 @@ func NewConfig(address string, mainchan chan *message.Container, onlinetable *on
 }
 
 func Handler(config Config) error {
+	// 初始化TLS
 	tlsconfig, err := tlsConfig()
 	if err != nil {
 		return err

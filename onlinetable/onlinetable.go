@@ -1,3 +1,4 @@
+// 在线表模块
 package onlinetable
 
 import (
@@ -11,11 +12,13 @@ import (
 
 var log = logging.MustGetLogger("main")
 
+// 实体类型定义
 const (
 	ENTITY_TYPE_USER = iota
 	ENTITY_TYPE_GROUP
 )
 
+// 实体结构
 type Entity struct {
 	Uid       string
 	Type      int
@@ -24,9 +27,10 @@ type Entity struct {
 	LoginTime time.Time
 }
 
+// 在线表结构
 type Container struct {
-	sync.RWMutex
-	storage map[string]*Entity
+	sync.RWMutex                    // 同步锁
+	storage      map[string]*Entity // 哈希表
 }
 
 var instance *Container
@@ -41,6 +45,7 @@ func NewContainer() *Container {
 	return instance
 }
 
+// 通过UID获取实体
 func (ct Container) GetEntity(uid string) (*Entity, error) {
 	ct.RLock()
 	if entity, ok := ct.storage[uid]; ok {
@@ -51,6 +56,7 @@ func (ct Container) GetEntity(uid string) (*Entity, error) {
 	return new(Entity), errors.New("Entity not found")
 }
 
+// 向在线表中添加实体
 func (ct *Container) AddEntity(uid string, pipe chan *message.Container) error {
 	ct.Lock()
 	delete(ct.storage, uid)
@@ -61,6 +67,7 @@ func (ct *Container) AddEntity(uid string, pipe chan *message.Container) error {
 	return nil
 }
 
+// 向在线表中添加群组实体
 func (ct *Container) AddGroupEntity(uid string, uidlist []string) error {
 	//TODO: Ensure every user in group is existed
 	ct.Lock()
@@ -77,6 +84,7 @@ func (ct *Container) GetEntities() error {
 	return nil
 }
 
+// 通过UID删除实体
 func (ct *Container) DelEntity(uid string) error {
 	ct.Lock()
 	delete(ct.storage, uid)

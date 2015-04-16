@@ -1,3 +1,4 @@
+// 主消息队列模块
 package queue
 
 import (

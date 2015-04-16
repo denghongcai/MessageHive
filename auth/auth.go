@@ -1,3 +1,4 @@
+// 认证模块
 package auth
 
 import (
@@ -8,12 +9,14 @@ import (
 	"github.com/op/go-logging"
 )
 
+// 认证消息结构
 type authMsg struct {
 	Token string `json:"token"`
 }
 
 var log = logging.MustGetLogger("main")
 
+// 认证方法
 func Authenticate(msg *message.Container) error {
 	uid := msg.GetSID()
 	body := msg.GetBODY()
@@ -26,7 +29,7 @@ func Authenticate(msg *message.Container) error {
 	}
 	token := authdata.Token
 	log.Info("Uid: %s, Token: %s, authenticated", uid, token)
-	//TODO
+	// TODO: 向认证服务器认证Token
 
 	return nil
 }

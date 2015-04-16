@@ -1,3 +1,4 @@
+// 通信协议模块
 package protocol
 
 import (
@@ -12,15 +13,18 @@ import (
 
 var log = logging.MustGetLogger("main")
 
+// Packet最大包长度定义
 const (
 	MAX_PACKET_LENGTH uint32 = 1 << 20 // 1M
 )
 
+// Packet结构
 type Packet struct {
 	length uint32
 	Msg    *message.Container
 }
 
+// Packet打包方法
 func (pkt *Packet) Pack() []byte {
 	msgBytes, _ := proto.Marshal(pkt.Msg)
 	pkt.length = uint32(len(msgBytes))
@@ -28,6 +32,7 @@ func (pkt *Packet) Pack() []byte {
 	return append(UInt32ToBytes(pkt.length), msgBytes...)
 }
 
+// Packet解包方法
 func (pkt *Packet) UnPack(b *[]byte) (bool, error) {
 	if len(*b) < 4 {
 		return false, nil
@@ -51,6 +56,7 @@ func (pkt *Packet) UnPack(b *[]byte) (bool, error) {
 	return true, nil
 }
 
+// UInt32到Bytes大端序转换
 func UInt32ToBytes(i uint32) []byte {
 	var buf = make([]byte, 4)
 	binary.BigEndian.PutUint32(buf, i)

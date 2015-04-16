@@ -1,3 +1,4 @@
+// 路由模块
 package router
 
 import (
@@ -15,6 +16,7 @@ import (
 	"github.com/op/go-logging"
 )
 
+// 消息类型定义
 const (
 	MESSAGE_TYPE_IDENTITY uint = iota
 	MESSAGE_TYPE_AUTHENTICATE
@@ -22,10 +24,12 @@ const (
 	MESSAGE_TYPE_RECEIPT
 	MESSAGE_TYPE_TRANSIENT
 	MESSAGE_TYPE_GROUP
-	MESSAGE_TYPE_ERROR
+	MESSAGE_TYPE_EVENT
 	MESSAGE_TYPE_MAX
+	MESSAEG_TYPE_ERROR = 31
 )
 
+// 群组消息类型定义
 const (
 	MESSAGE_GROUP_JOIN   = "join"
 	MESSAGE_GROUP_INVITE = "invite"
@@ -33,6 +37,7 @@ const (
 	MESSAGE_GROUP_LEAVE  = "leave"
 )
 
+// 群组消息内容结构
 type GroupBody struct {
 	Action  string      `json:"action"`
 	BodyRaw interface{} `json:"data"`
@@ -41,6 +46,7 @@ type GroupBody struct {
 	Data string
 }
 
+// 群组消息内容JSON解析
 func GroupBodyDecode(r io.Reader) (x *GroupBody, err error) {
 	x = new(GroupBody)
 	if err = json.NewDecoder(r).Decode(x); err != nil {
@@ -115,6 +121,7 @@ func Handler(config Config) error {
 			response.STIME = proto.Int64(time.Now().Unix())
 			response.BODY = proto.String("")
 			for i := 0; i < int(MESSAGE_TYPE_MAX); i++ {
+				// 消息分类处理
 				if hasBit(mtype, uint(i)) {
 					switch uint(i) {
 					case MESSAGE_TYPE_AUTHENTICATE:
@@ -157,7 +164,7 @@ func Handler(config Config) error {
 					}
 				}
 			}
-			// Send to sid
+			// 发送回应消息
 			go func() {
 				select {
 				case sentity.Pipe <- response:
@@ -174,6 +181,7 @@ func Handler(config Config) error {
 					log.Debug(err.Error())
 					if hasBit(mtype, MESSAGE_TYPE_TRANSIENT) {
 						// MESSAGE_TYPE_TRANSIENT
+						// 向Transient队列压入消息
 						transientChan <- msg
 					}
 					break
@@ -190,7 +198,7 @@ func Handler(config Config) error {
 				case onlinetable.ENTITY_TYPE_USER:
 					go func() {
 						select {
-						case rentity.Pipe <- msg: // TODO: this will cause dead lock
+						case rentity.Pipe <- msg: // TODO: 这里可能造成死锁
 							log.Info("Message delivered from %s to %s", sid, rid)
 						case <-time.After(time.Second):
 							config.mainchan <- msg

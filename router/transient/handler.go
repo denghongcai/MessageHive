@@ -1,3 +1,4 @@
+// Transient消息队列
 package transient
 
 import (
@@ -27,6 +28,7 @@ func Handler(config Config) {
 		sid := msg.GetSID()
 		conn := config.pool.Get()
 		data, _ := proto.Marshal(msg)
+		// 向Redis存入带过期时间的消息
 		_, err := conn.Do("LPUSH", sid, data)
 		if err != nil {
 			log.Error(err.Error())

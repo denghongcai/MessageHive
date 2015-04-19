@@ -25,8 +25,9 @@ const (
 	MESSAGE_TYPE_TRANSIENT
 	MESSAGE_TYPE_GROUP
 	MESSAGE_TYPE_EVENT
-	MESSAGE_TYPE_MAX
-	MESSAEG_TYPE_ERROR = 31
+	MESSAGE_INTERN_TYPE_ONLINE
+	MESSAGE_INTERN_TYPE_OFFLINE
+	MESSAGE_TYPE_ERROR = 31
 )
 
 // 群组消息类型定义
@@ -105,18 +106,12 @@ func Handler(config Config) error {
 		select {
 		case msg := <-config.mainchan:
 			sendflag := true
+			sendResponseFlag := true
 			sid := msg.GetSID()
 			rid := msg.GetRID()
 			mtype := msg.GetTYPE()
 			sentity, err := config.onlinetable.GetEntity(sid)
 			if err != nil {
-				if hasBit(mtype, MESSAGE_TYPE_AUTHENTICATE) {
-					e := &event_user.Event{
-						Uid:  sid,
-						Type: event_user.USER_OFFLINE,
-					}
-					eventUserChan <- e
-				}
 				log.Info(err.Error())
 				break
 			}
@@ -127,17 +122,29 @@ func Handler(config Config) error {
 			response.TYPE = proto.Uint32(0)
 			response.STIME = proto.Int64(time.Now().Unix())
 			response.BODY = proto.String("")
-			for i := 0; i < int(MESSAGE_TYPE_MAX); i++ {
+			for i := 0; i <= int(MESSAGE_TYPE_ERROR); i++ {
 				// 消息分类处理
 				if hasBit(mtype, uint(i)) {
 					switch uint(i) {
-					case MESSAGE_TYPE_AUTHENTICATE:
+					case MESSAGE_INTERN_TYPE_ONLINE:
 						e := &event_user.Event{
 							Uid:  sid,
 							Type: event_user.USER_ONLINE,
 						}
 						eventUserChan <- e
 						sendflag = false
+						break
+					case MESSAGE_INTERN_TYPE_OFFLINE:
+						e := &event_user.Event{
+							Uid:  sid,
+							Type: event_user.USER_OFFLINE,
+						}
+						eventUserChan <- e
+						sendflag = false
+						sendResponseFlag = false
+						break
+					case MESSAGE_TYPE_EVENT:
+						sendResponseFlag = false
 						break
 					case MESSAGE_TYPE_GROUP:
 						body := msg.GetBODY()
@@ -172,14 +179,16 @@ func Handler(config Config) error {
 				}
 			}
 			// 发送回应消息
-			go func() {
-				select {
-				case sentity.Pipe <- response:
-					log.Info("Response delivered to %s", sid)
-				case <-time.After(time.Second):
-					log.Error("Response failed to deliverd to %s", sid)
+			go func(flag bool) {
+				if sendResponseFlag {
+					select {
+					case sentity.Pipe <- response:
+						log.Info("Response delivered to %s", sid)
+					case <-time.After(time.Second):
+						log.Error("Response failed to deliverd to %s", sid)
+					}
 				}
-			}()
+			}(sendResponseFlag)
 
 			// Send to rid
 			if sendflag {
@@ -191,7 +200,10 @@ func Handler(config Config) error {
 						// 向Transient队列压入消息
 						transientChan <- msg
 					}
-					break
+					// 事件消息不检查实体是否存在
+					if !hasBit(mtype, MESSAGE_TYPE_EVENT) {
+						break
+					}
 				}
 				switch rentity.Type {
 				case onlinetable.ENTITY_TYPE_GROUP:

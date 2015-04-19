@@ -68,6 +68,7 @@ func (ins *Instance) stateMachine(pkt *protocol.Packet) error {
 		ins.Uid = pkt.Msg.GetSID()
 		ins.state = CONNECTED
 		// 向路由模块的主消息通道压入用户上线消息
+		pkt.Msg.TYPE = proto.Uint32(uint32(setBit(0, router.MESSAGE_INTERN_TYPE_ONLINE)))
 		ins.outchan <- pkt.Msg
 	case CONNECTED:
 		if ins.Uid != pkt.Msg.GetSID() {
@@ -149,7 +150,7 @@ func generateOfflineMsg(uid string) *message.Container {
 	msg := new(message.Container)
 	msg.SID = proto.String(uid)
 	msg.RID = proto.String("")
-	msg.TYPE = proto.Uint32(uint32(setBit(0, router.MESSAGE_TYPE_AUTHENTICATE)))
+	msg.TYPE = proto.Uint32(uint32(setBit(0, router.MESSAGE_INTERN_TYPE_OFFLINE)))
 	msg.BODY = proto.String(`{"type": "offline", "data": null}`)
 	msg.STIME = proto.Int64(time.Now().Unix())
 	return msg

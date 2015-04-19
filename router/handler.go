@@ -110,6 +110,13 @@ func Handler(config Config) error {
 			mtype := msg.GetTYPE()
 			sentity, err := config.onlinetable.GetEntity(sid)
 			if err != nil {
+				if hasBit(mtype, MESSAGE_TYPE_AUTHENTICATE) {
+					e := &event_user.Event{
+						Uid:  sid,
+						Type: event_user.USER_OFFLINE,
+					}
+					eventUserChan <- e
+				}
 				log.Info(err.Error())
 				break
 			}

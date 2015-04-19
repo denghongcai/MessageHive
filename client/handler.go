@@ -11,6 +11,8 @@ import (
 	"github.com/denghongcai/MessageHive/message"
 	"github.com/denghongcai/MessageHive/onlinetable"
 	"github.com/denghongcai/MessageHive/protocol"
+	"github.com/denghongcai/MessageHive/router"
+	"github.com/golang/protobuf/proto"
 	"github.com/op/go-logging"
 )
 
@@ -104,7 +106,10 @@ func (ins *Instance) MainReadHandler() {
 	}
 	log.Info("Disconnected, uid: %s", ins.Uid)
 	// 删除在线表中当前用户
-	ins.onlinetable.DelEntity(ins.Uid)
+	err := ins.onlinetable.DelEntity(ins.Uid)
+	if err == nil {
+		ins.outchan <- generateOfflineMsg(ins.Uid)
+	}
 }
 
 // 客户端TCP连接写routine
@@ -128,5 +133,24 @@ func (ins *Instance) MainWriteHandler() {
 	}
 	log.Info("Disconnected, uid: %s", ins.Uid)
 	// 删除在线表中当前用户
-	ins.onlinetable.DelEntity(ins.Uid)
+	err := ins.onlinetable.DelEntity(ins.Uid)
+	if err == nil {
+		ins.outchan <- generateOfflineMsg(ins.Uid)
+	}
+}
+
+// TODO: 判断大端还是小端
+func setBit(n int, pos uint) int {
+	n |= (1 << pos)
+	return n
+}
+
+func generateOfflineMsg(uid string) *message.Container {
+	msg := new(message.Container)
+	msg.SID = proto.String(uid)
+	msg.RID = proto.String("")
+	msg.TYPE = proto.Uint32(uint32(setBit(0, router.MESSAGE_TYPE_AUTHENTICATE)))
+	msg.BODY = proto.String(`{"type": "offline", "data": null}`)
+	msg.STIME = proto.Int64(time.Now().Unix())
+	return msg
 }

@@ -87,7 +87,12 @@ func (ct *Container) GetEntities() error {
 // 通过UID删除实体
 func (ct *Container) DelEntity(uid string) error {
 	ct.Lock()
-	delete(ct.storage, uid)
-	ct.Unlock()
-	return nil
+	if _, ok := ct.storage[uid]; ok {
+		delete(ct.storage, uid)
+		ct.Unlock()
+		return nil
+	} else {
+		ct.Unlock()
+		return errors.New("Entity delete failed")
+	}
 }

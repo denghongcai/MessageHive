@@ -15,6 +15,7 @@ var log = logging.MustGetLogger("main")
 
 const (
 	USER_ONLINE = iota
+	USER_OFFLINE
 )
 
 // 与用户相关的事件结构体
@@ -71,6 +72,17 @@ func Start(config Config) {
 				config.mainchan <- msg
 			}
 			log.Debug("UID: %s online", e.Uid)
+		case USER_OFFLINE:
+			if e.Uid != "00000001" {
+				msg := &message.Container{}
+				msg.SID = proto.String(e.Uid)
+				msg.RID = proto.String("00000001") // 推送系统UID
+				msg.TYPE = proto.Uint32(64)
+				msg.STIME = proto.Int64(time.Now().UnixNano())
+				msg.BODY = proto.String(`{"type": "offline", "data": null}`)
+				config.mainchan <- msg
+			}
+			log.Debug("UID: %s offline", e.Uid)
 		}
 	}
 }

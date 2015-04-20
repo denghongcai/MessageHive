@@ -72,6 +72,7 @@ func Start(config Config) {
 				config.mainchan <- msg
 			}
 			log.Debug("UID: %s online", e.Uid)
+			break
 		case USER_OFFLINE:
 			if e.Uid != "00000001" {
 				msg := &message.Container{}
@@ -83,6 +84,7 @@ func Start(config Config) {
 				config.mainchan <- msg
 			}
 			log.Debug("UID: %s offline", e.Uid)
+			break
 		}
 	}
 }

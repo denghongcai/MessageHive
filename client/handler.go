@@ -141,17 +141,22 @@ func (ins *Instance) MainWriteHandler() {
 }
 
 // TODO: 判断大端还是小端
-func setBit(n int, pos uint) int {
+func setBit(n uint32, pos uint) uint32 {
 	n |= (1 << pos)
 	return n
+}
+
+func hasBit(n uint32, pos uint) bool {
+	val := n & (1 << pos)
+	return (val > 0)
 }
 
 func generateOfflineMsg(uid string) *message.Container {
 	msg := new(message.Container)
 	msg.SID = proto.String(uid)
 	msg.RID = proto.String("")
-	msg.TYPE = proto.Uint32(uint32(setBit(0, router.MESSAGE_INTERN_TYPE_OFFLINE)))
-	msg.BODY = proto.String(`{"type": "offline", "data": null}`)
+	msg.TYPE = proto.Uint32(setBit(0, router.MESSAGE_INTERN_TYPE_OFFLINE))
+	msg.BODY = proto.String("")
 	msg.STIME = proto.Int64(time.Now().Unix())
 	return msg
 }

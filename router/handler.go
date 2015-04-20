@@ -113,8 +113,8 @@ func Handler(config Config) error {
 			sentity, err := config.onlinetable.GetEntity(sid)
 			if err != nil {
 				// 事件消息不检查发送实体是否存在
-				if !hasBit(mtype, MESSAGE_TYPE_EVENT) {
-					log.Info(err.Error())
+				if !hasBit(mtype, MESSAGE_TYPE_EVENT) && !hasBit(mtype, MESSAGE_INTERN_TYPE_OFFLINE) {
+					log.Debug(err.Error())
 					break
 				}
 			}
@@ -203,6 +203,7 @@ func Handler(config Config) error {
 						// 向Transient队列压入消息
 						transientChan <- msg
 					}
+					break
 				}
 				switch rentity.Type {
 				case onlinetable.ENTITY_TYPE_GROUP:

@@ -112,8 +112,11 @@ func Handler(config Config) error {
 			mtype := msg.GetTYPE()
 			sentity, err := config.onlinetable.GetEntity(sid)
 			if err != nil {
-				log.Info(err.Error())
-				break
+				// 事件消息不检查发送实体是否存在
+				if !hasBit(mtype, MESSAGE_TYPE_EVENT) {
+					log.Info(err.Error())
+					break
+				}
 			}
 			response := new(message.Container)
 			response.MID = proto.String(msg.GetMID())
@@ -199,10 +202,6 @@ func Handler(config Config) error {
 						// MESSAGE_TYPE_TRANSIENT
 						// 向Transient队列压入消息
 						transientChan <- msg
-					}
-					// 事件消息不检查实体是否存在
-					if !hasBit(mtype, MESSAGE_TYPE_EVENT) {
-						break
 					}
 				}
 				switch rentity.Type {

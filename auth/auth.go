@@ -30,7 +30,6 @@ func Authenticate(msg *message.Container) error {
 		return errors.New("Auth failed, token field was empty")
 	}
 	token := authdata.Token
-	log.Info("Uid: %s, Token: %s, authenticated", uid, token)
 	if uid == "00000001" {
 		return nil
 	}
@@ -59,6 +58,8 @@ func Authenticate(msg *message.Container) error {
 	if err != nil {
 		return err
 	}
+
+	log.Info("Uid: %s, Token: %s, authenticated", uid, token)
 
 	return nil
 }

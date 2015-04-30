@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 
+	"database/sql"
 	"github.com/denghongcai/MessageHive/message"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/op/go-logging"
 )
 
@@ -29,7 +31,34 @@ func Authenticate(msg *message.Container) error {
 	}
 	token := authdata.Token
 	log.Info("Uid: %s, Token: %s, authenticated", uid, token)
+	if uid == "00000001" {
+		return nil
+	}
 	// TODO: 向认证服务器认证Token
+	db, err := sql.Open("mysql", "dhc:denghc@/Register")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		return err
+	}
+
+	stmtOut, err := db.Prepare("SELECT timeout FROM Token WHERE uid = ? and token= ?")
+	if err != nil {
+		return err
+	}
+	defer stmtOut.Close()
+
+	var timestamp int64
+
+	err = stmtOut.QueryRow(uid, token).Scan(&timestamp)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

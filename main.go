@@ -6,11 +6,11 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/denghongcai/MessageHive/message"
 	"github.com/denghongcai/MessageHive/modules/command"
-	"github.com/denghongcai/MessageHive/onlinetable"
-	"github.com/denghongcai/MessageHive/router"
-	"github.com/denghongcai/MessageHive/server"
+	"github.com/denghongcai/MessageHive/modules/message"
+	"github.com/denghongcai/MessageHive/modules/server"
+	"github.com/denghongcai/MessageHive/modules/onlinetable"
+	"github.com/denghongcai/MessageHive/modules/router"
 )
 
 func main() {

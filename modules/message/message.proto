@@ -1,0 +1,10 @@
+package message;
+
+message Container {
+	optional string MID = 1;
+	required string SID = 2;
+	required string RID = 3;
+	required uint32 TYPE = 4;
+	required int64 STIME = 5;
+	required string BODY = 6;
+}

@@ -2,7 +2,6 @@
 package client
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -15,7 +14,6 @@ import (
 	"github.com/denghongcai/MessageHive/modules/protocol"
 	"github.com/denghongcai/MessageHive/modules/router"
 	"github.com/golang/protobuf/proto"
-	"github.com/op/go-logging"
 )
 
 // 状态机状态表

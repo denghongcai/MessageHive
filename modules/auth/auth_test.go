@@ -8,6 +8,7 @@ import (
 )
 
 func TestAuth(t *testing.T) {
+	SetAuthHandler("test", `{}`)
 	msg := &message.Container{
 		SID:   proto.String("hehe"),
 		RID:   proto.String("haha"),

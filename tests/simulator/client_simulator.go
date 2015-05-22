@@ -53,7 +53,7 @@ func client(sid string, rid string, group bool) {
 	defer conn.Close()
 	log.Println("client: connected to: ", conn.RemoteAddr())
 
-	msg := CreatePacket(AUTH, sid, rid, `{"token": "a"}`)
+	msg := CreatePacket(AUTH, sid, rid, `{"token": "hehe"}`)
 
 	n, err := conn.Write(msg)
 	if err != nil {

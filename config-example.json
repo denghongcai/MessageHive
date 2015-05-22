@@ -1,0 +1,20 @@
+{
+    "bind": "0.0.0.0",
+    "port": 1430,
+    "auth": {
+        "adapter": "test",
+        "config": {
+            "dsn": ""
+        }
+    },
+    "log": {
+        "level": "info"
+    },
+    "tls": {
+	"certificates": [
+	    "./certificates/dhc.house.der.csr",
+	    "./certificates/alphassl.der.csr"
+	],
+	"key": "./certificates/dhc.house.der.key"
+    }
+}

@@ -1,6 +1,8 @@
 package command
 
 import (
+	"strings"
+
 	"github.com/denghongcai/MessageHive/modules/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -29,24 +31,25 @@ func AddCommands() {
 }
 
 func init() {
-	MessageHiveCmd.PersistentFlags().StringVarP(&CfgFile, "config", "c", "", "config file (default is path/config.yaml|json|toml)")
+	MessageHiveCmd.PersistentFlags().StringVarP(&CfgFile, "config", "c", "config.json", "config file (default is path/config.json)")
 	MessageHiveCmd.PersistentFlags().StringVar(&LogLevel, "logLevel", "Info", "logout put level")
 	messagehiveCmdV = MessageHiveCmd
 }
 
 func InitializeConfig() {
 	viper.SetConfigFile(CfgFile)
+	viper.SetConfigType("json")
 	err := viper.ReadInConfig()
 	if err != nil {
-		//panic("Unable to locate Config file.Perhaps you need to create a config from example")
+		panic("Unable to locate Config file.Perhaps you need to create a config from example")
 	}
-	viper.SetDefault("LogLevel", "Info")
+	viper.SetDefault("log", map[string]string{"level": "Info"})
 
 	if messagehiveCmdV.PersistentFlags().Lookup("logLevel").Changed {
-		viper.Set("LogLevel", LogLevel)
+		viper.Set("log.level", LogLevel)
 	}
 
-	log.NewLogger("console", `{"level": "`+viper.GetString("LogLevel")+`"}`)
+	log.NewLogger("console", `{"level": "`+strings.Title(viper.GetString("log.level"))+`"}`)
 
 	log.Info("Using config file: %s", viper.ConfigFileUsed())
 }

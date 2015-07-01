@@ -27,6 +27,7 @@ const (
 	MESSAGE_TYPE_EVENT
 	MESSAGE_INTERN_TYPE_ONLINE
 	MESSAGE_INTERN_TYPE_OFFLINE
+	MESSAGE_INTERN_TYPE_TRANSIENT
 	MESSAGE_TYPE_ERROR = 31
 )
 
@@ -113,7 +114,7 @@ func Handler(config Config) error {
 			sentity, err := config.onlinetable.GetEntity(sid)
 			if err != nil {
 				// 事件消息不检查发送实体是否存在
-				if !hasBit(mtype, MESSAGE_TYPE_EVENT) && !hasBit(mtype, MESSAGE_INTERN_TYPE_OFFLINE) {
+				if !hasBit(mtype, MESSAGE_TYPE_EVENT) && !hasBit(mtype, MESSAGE_INTERN_TYPE_OFFLINE) && !hasBit(mtype, MESSAGE_INTERN_TYPE_TRANSIENT) {
 					log.Debug(err.Error())
 					break
 				}
@@ -201,6 +202,7 @@ func Handler(config Config) error {
 					if hasBit(mtype, MESSAGE_TYPE_TRANSIENT) {
 						// MESSAGE_TYPE_TRANSIENT
 						// 向Transient队列压入消息
+						msg.TYPE = proto.Uint32(setBit(mtype, MESSAGE_INTERN_TYPE_TRANSIENT))
 						transientChan <- msg
 					}
 					break

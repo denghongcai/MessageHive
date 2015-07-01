@@ -3,7 +3,6 @@ package auth
 
 import (
 	"encoding/json"
-	"errors"
 )
 
 type TestAuthHandler struct {
@@ -19,12 +18,14 @@ func (th *TestAuthHandler) Init(config string) error {
 
 // 认证方法
 func (th *TestAuthHandler) IsTokenValid(token string, uid string) error {
-	if uid == "00000001" {
-		return nil
-	}
-	if token != "hehe" {
-		return errors.New("you lose!")
-	}
+	/*
+		if uid == "00000001" {
+			return nil
+		}
+		if token != "hehe" {
+			return errors.New("you lose!")
+		}
+	*/
 
 	return nil
 }

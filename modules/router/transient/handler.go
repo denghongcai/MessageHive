@@ -25,11 +25,11 @@ func NewConfig(pool *redis.Pool, transientchan chan *message.Container) Config {
 func Handler(config Config) {
 	for {
 		msg := <-config.transientchan
-		sid := msg.GetSID()
+		rid := msg.GetRID()
 		conn := config.pool.Get()
 		data, _ := proto.Marshal(msg)
 		// 向Redis存入带过期时间的消息
-		_, err := conn.Do("LPUSH", sid, data)
+		_, err := conn.Do("LPUSH", rid, data)
 		if err != nil {
 			log.Error(err.Error())
 		}
